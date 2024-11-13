@@ -1,12 +1,12 @@
-site_name: MatsurXc
+site_name: zhiufwer
 site_url: ""
-repo_url: https://MatsurXc.github.io
+repo_url: https://zhiufwer.github.io
 edit_uri: ""
 repo_name: 文档
 copyright: ""
 theme:
   name: material
-  logo: https://MatsurXc.github.io/assets/images/avatar.jpg
+  logo: https://zhiufwer.github.io/assets/images/avatar.jpg
   palette:
     - scheme: default
       primary: indigo
