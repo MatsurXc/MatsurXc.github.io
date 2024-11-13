@@ -1,0 +1,27 @@
+site_name: MatsurXc
+site_url: ""
+repo_url: https://MatsurXc.github.io
+edit_uri: ""
+repo_name: 文档
+copyright: ""
+theme:
+  name: material
+  logo: https://MatsurXc.github.io/assets/images/avatar.jpg
+  palette:
+    - scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+    - scheme: slate
+      primary: black
+      toggle:
+        icon: material/brightness-4
+markdown_extensions:
+  - pymdownx.magiclink
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+nav:
+  - 首页: index_docs.md
+  - 下载: download.md
+  - Matsuri-配置: m-configuration.md
