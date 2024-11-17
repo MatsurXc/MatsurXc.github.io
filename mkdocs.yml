@@ -1,12 +1,12 @@
-site_name: MatsuriDayo
-site_url: https://matsuridayo.github.io/
-repo_url: https://github.com/MatsuriDayo/matsuridayo.github.io
+site_name: MatsurXc
+site_url: https://MatsurXc.github.io
+repo_url: https://github.com/MatsurXc/MatsurXc.github.io
 edit_uri: ""
 repo_name: 文档
 copyright: CC BY-SA 4.0
 theme:
   name: material
-  logo: https://matsuridayo.github.io/assets/images/matsuri1.jpg
+  logo: https://MatsurXc.github.io/assets/images/matsuri1.jpg
   palette:
     - scheme: default
       primary: indigo
@@ -25,14 +25,3 @@ nav:
   - 首页: index_docs.md
   - 下载: download.md
   - Matsuri-配置: m-configuration.md
-  - Matsuri-分组: m-group.md
-  - Matsuri-路由: m-route.md
-  - Matsuri-插件: m-plugin.md
-  - Matsuri-FAQ: m-faq.md
-  - Nekoray-配置: n-configuration.md
-  - Nekoray-自定义核心: n-extra_core.md
-  - Nekoray-FAQ: n-faq.md
-  - NB4A-配置: nb4a-configuration.md
-  - NB4A-路由: nb4a-route.md
-  - NB4A-FAQ: nb4a-faq.md
-  - NB4A-白话文-国内外分流: nb4a-bhw-domestic.md

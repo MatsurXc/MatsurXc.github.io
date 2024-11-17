@@ -1,12 +1,13 @@
 本文档有多页，如未看见目录，请点击左上角三条横线/
 
-## NekoBox for Android
+## ipv6搭建节点
+warp链接：
 
-适用于 Android 的 sing-box 通用代理工具链。
+    wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh && bash menu.sh 4
+八合一：
 
-sing-box / universal proxy toolchain for Android.
+    wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/mack-a/v2ray-agent/master/install.sh" && chmod 700 /root/install.sh && /root/install.sh
 
-[详情 / Detail](/download/#nekobox-for-android)
 
 ## NekoRay / NekoBox for PC
 
@@ -16,58 +17,3 @@ Qt based cross-platform GUI proxy configuration manager (backend: v2ray / sing-b
 
 [详情 / Detail](/download/#nekoray-nekobox-for-pc)
 
-## Google Play
-
-Google Play 上的版本是由第三方上传的含广告版本，请不要下载。
-
-## 更改记录 & 发布频道
-
-Changelog & Telegram channel
-
-https://t.me/Matsuridayo
-
-## 联系 / Get in touch
-
-!!! warning
-
-    问题反馈请到 GitHub issue 区。请勿滥用邮箱和群组，**否则一律不回或封禁**。
-    
-    For feedback, please go to the GitHub issue.
-
-## 捐助 / Donate
-
-如果这个项目对您有帮助，可以通过捐赠的方式帮助我们维持这个项目。
-
-捐赠满等额 50 USD 可以在「[捐赠榜](https://mtrdnt.pages.dev/donation_list)」显示头像，如果您未被添加到这里，欢迎联系我们补充。
-
-Donations of 50 USD or more can display your avatar on the [Donation List](https://mtrdnt.pages.dev/donation_list). If you are not added here, please contact us to add it.
-
-USDT TRC20
-
-`TRhnA7SXE5Sap5gSG3ijxRmdYFiD4KRhPs`
-
-XMR
-
-`49bwESYQjoRL3xmvTcjZKHEKaiGywjLYVQJMUv79bXonGiyDCs8AzE3KiGW2ytTybBCpWJUvov8SjZZEGg66a4e59GXa6k5`
-
-### Telegram Group
-
-使用交流
-
-https://t.me/nekoray_group
-
-### Email
-
-接广告投放（如果是机场，请由机场主亲自洽谈），接编程项目合作。
-
-请勿发送无意义邮件（比如功能请求），**此类邮件一律不回或拉黑发送者**。
-
-`nekoha_matsuri@protonmail.com`
-
-### 推广页
-
-!!! warning ""
-
-    包含机场推荐，所有广告与本项目无关，请自行甄别。部分页面可能无法在中国国内访问，请自备梯子。
-
-https://matsuricom.pages.dev

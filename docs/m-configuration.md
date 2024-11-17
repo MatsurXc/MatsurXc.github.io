@@ -5,22 +5,6 @@
 本页的某些信息可能已过期，请注意辨别。
 
 ## 协议说明
-
-### Shadowsocks
-
-!!! note "封锁提示"
-
-    2021 年 11 月开始，在热门线路如 Vultr DigitalOcean 部署有**针对随机 TCP 流量的封锁**，Shadowsocks（包括2022）以及 VMess TCP 等协议变得难以使用。
-
-* [Shadowsocks是如何被检测和封锁的](https://gfw.report/talks/imc20/zh/)
-* Shadowsocks 流式密码 可以被准确地主动探测、在不需要密码的情况下被审查者解密流量, 且服务端开启 IV 重放过滤器也无法缓解. 了解更多: https://github.com/net4people/bbs/issues/24
-* 截至 2023 年 2 月，以上信息可能已经过期。
-
-### ShadowsocksR
-
-* 拥有 Shadowsocks 的几乎所有问题
-* 由于众所周知的原因，上游 shadowsocksr-libev 自 2017 年开始 **不再维护**
-
 ### VMESS
 
 * VMESS MD5 身份验证（非 AEAD）已被弃用，此类配置文件的 alterId 大于 0，使用 Matsuri 分享时会使用旧式链接。
