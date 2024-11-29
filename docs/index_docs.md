@@ -1,5 +1,6 @@
 
-[ sms / free ]
+[ sms / 好用的电话网站 ]
+
 [https://quackr.io/](https://quackr.io/)
 
 [https://top-akov.org/](https://top-akov.org/)
@@ -14,7 +15,8 @@
 
 [https://sms24.me/](https://sms24.me/)
 
-[ eamil / lin ]
+[ eamil / 十分钟邮箱 ]
+
 [https://10minutemail.com/](https://10minutemail.com/)
 
 [https://10minemail.com/zh/](https://10minemail.com/zh/)
