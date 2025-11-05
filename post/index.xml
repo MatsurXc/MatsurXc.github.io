@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on MatsurXc的博客</title><link>https://fvhtp.ppzt.loc.cc/post/</link><description>Recent content in Posts on MatsurXc的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Wed, 05 Nov 2025 04:56:44 +0000</lastBuildDate><atom:link href="https://fvhtp.ppzt.loc.cc/post/index.xml" rel="self" type="application/rss+xml"/><item><title>如何给vcpkg提pr</title><link>https://fvhtp.ppzt.loc.cc/p/%E5%A6%82%E4%BD%95%E7%BB%99vcpkg%E6%8F%90pr/</link><pubDate>Sun, 17 Nov 2024 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/%E5%A6%82%E4%BD%95%E7%BB%99vcpkg%E6%8F%90pr/</guid><description>&lt;p&gt;笔者偶尔会给vcpkg提交一些包的更新，这里记录下遇到的问题，与大家分享，如能起到一点点帮助那我就更开心了。&lt;/p&gt;
+&lt;p&gt;首先是github提pr的基本流程，这里假设大家都已经知道了，此为前提。&lt;/p&gt;
+&lt;h2 id="更新包"&gt;更新包
+&lt;/h2&gt;&lt;h3 id="更新版本"&gt;更新版本
+&lt;/h3&gt;&lt;p&gt;以&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/39738" target="_blank" rel="noopener"
+&gt;fmt&lt;/a&gt;为例，我们这次的目的要更新fmt的版本号到&lt;code&gt;11.0.2&lt;/code&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;在vcpkg的路径ports文件夹下找到要更新的包，为例，那么我们就要找到文件夹&lt;code&gt;vcpkg/ports/fmt&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在这个文件夹下有两个主要文件，也就是我们要修改的地方&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;vcpkg.json&lt;/code&gt; 这个文件对fmt包进行了基本的描述，因为我们主要关注版本的更新，所以我们主要看参数&lt;code&gt;version&lt;/code&gt;和&lt;code&gt;port-version&lt;/code&gt;&lt;br&gt;
+&lt;code&gt;version&lt;/code&gt;对应版本号，把它更新为&lt;code&gt;11.0.2&lt;/code&gt;; &lt;code&gt;port-version&lt;/code&gt;为当前版本的修改号，一般的，当我们更新版本时要去掉&lt;code&gt;port-version&lt;/code&gt;(port-version将在下一节修复问题时用到)&lt;/p&gt;
+&lt;p&gt;好了，更新完后应该是这样子的&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;version&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;11.0.2&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="err"&gt;&amp;lt;---&lt;/span&gt; &lt;span class="err"&gt;更新了这里的版本号。VVV&lt;/span&gt; &lt;span class="err"&gt;下面没有port-version&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;description&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;{fmt} is an open-source formatting library providing a fast and safe alternative to C stdio and C++ iostreams.&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;homepage&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;https://github.com/fmtlib/fmt&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;license&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;MIT&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;dependencies&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;vcpkg-cmake&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;host&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;vcpkg-cmake-config&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;host&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;portfile.cmake&lt;/code&gt; 这个文件对fmt怎么用cmake构建进行了描述，因为我们主要关注版本的更新，所以我们只看文件里的&lt;code&gt;vcpkg_from_github&lt;/code&gt;函数，这个函数里有两个要改的变量&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;REF&lt;/code&gt; vcpkg是根据&lt;code&gt;REF&lt;/code&gt;的值去判断下载github上的哪个版本的release去编译的，如果你发现&lt;code&gt;REF&lt;/code&gt;的值是&lt;code&gt;&amp;quot;${VERSION}&amp;quot;&lt;/code&gt;，
+那么这里一般就不需要改了，否则你需要把它改成版本号(当然，你提pr的时候就会发现vcpkg的官方人员会提醒你使用&lt;code&gt;&amp;quot;${VERSION}&amp;quot;&lt;/code&gt;，减少一处改动何乐而不为呢哈哈)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;SHA512&lt;/code&gt; 这个值是github上release的压缩包的哈希值，用于校验下载的文件是否正确。那么怎么得到这个哈希值呢?
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;在vcpkg的根目录下执行&lt;code&gt;vcpkg install fmt&lt;/code&gt;， 等待一段时间，vcpkg会报错，在报错信息里找到这两行：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmake" data-lang="cmake"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;...
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;Expected&lt;/span&gt; &lt;span class="err"&gt;hash:&lt;/span&gt; &lt;span class="err"&gt;xxxxx
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;Actual&lt;/span&gt; &lt;span class="err"&gt;hash:&lt;/span&gt; &lt;span class="err"&gt;47ff6d289dcc22681eea6da465b0348172921e7cafff8fd57a1540d3232cc6b53250a4625c954ee0944c87963b17680ecbc3ea123e43c2c822efe0dc6fa6cef3
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;...
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;看到没，这个Actual hash的值就是你要修改的&lt;code&gt;SHA512&lt;/code&gt;的值了，复制过来。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在vcpkg的根目录下再次执行&lt;code&gt;vcpkg install fmt&lt;/code&gt;，如果没有报错那么恭喜你，更新包的流程就完成了一大半了！&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;好了，更新完后应该是这样子的&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmake" data-lang="cmake"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;vcpkg_from_github&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;OUT_SOURCE_PATH&lt;/span&gt; &lt;span class="s"&gt;SOURCE_PATH&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;REPO&lt;/span&gt; &lt;span class="s"&gt;fmtlib/fmt&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;REF&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;${VERSION}&amp;#34;&lt;/span&gt; &lt;span class="c"&gt;# &amp;lt;--- 无需修改
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;&lt;/span&gt; &lt;span class="s"&gt;SHA512&lt;/span&gt; &lt;span class="s"&gt;47ff6d289dcc22681eea6da465b0348172921e7cafff8fd57a1540d3232cc6b53250a4625c954ee0944c87963b17680ecbc3ea123e43c2c822efe0dc6fa6cef3&lt;/span&gt; &lt;span class="c"&gt;# &amp;lt;--- 必须修改哈希值
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;&lt;/span&gt; &lt;span class="s"&gt;HEAD_REF&lt;/span&gt; &lt;span class="s"&gt;master&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;将刚才的修改git commit&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在vcpkg的根目录下执行&lt;code&gt;vcpkg x-add-version --all&lt;/code&gt;，这会修改vcpkg用于记录的数据库，对应两个文件&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;versions/f-/fmt.json&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;versions/baseline.json&lt;/code&gt;
+当然，这两个文件的改动是自动修改的，再次git commit&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;将git修改提交到vcpkg的pull request中&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="修复当前版本的问题"&gt;修复当前版本的问题
+&lt;/h3&gt;&lt;p&gt;很多时候不是简简单单更新个版本号就能正确更新的，某些包的更新可能会导致依赖于此包的其他包编译报错，某些包的更新可能会引入自己的新bug等等&amp;hellip;&lt;/p&gt;
+&lt;p&gt;我们还是以&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/39738" target="_blank" rel="noopener"
+&gt;fmt&lt;/a&gt;为例，当fmt从v10升级到v11后，有很多大的改动，
+比如要使用fmt的join函数，必须要显式的&lt;code&gt;#include &amp;lt;fmt/ranges.h&amp;gt;&lt;/code&gt;，这会导致libtorch编译报错，我们需要修改libtorch相关的报错文件，在其文件中&lt;code&gt;#include &amp;lt;fmt/ranges.h&amp;gt;&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;那么要怎么做呢，我们的核心思想就是对这次修复形成一个commit，利用git的patch机制生成一个patch文件，最终在构建时将这个patch文件引入进来，从而解决编译报错等问题。&lt;/p&gt;
+&lt;p&gt;参考&lt;a class="link" href="https://github.com/Microsoft/vcpkg-docs/blob/main/vcpkg/examples/patching.md" target="_blank" rel="noopener"
+&gt;https://github.com/Microsoft/vcpkg-docs/blob/main/vcpkg/examples/patching.md&lt;/a&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;为libtorch创建git本地仓库&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;执行&lt;code&gt;vcpkg install libtorch&lt;/code&gt;，此时由于fmt的更新会导致编译报错，没错就是缺少&lt;code&gt;#include &amp;lt;fmt/ranges.h&amp;gt;&lt;/code&gt;导致的报错。我们找到vcpkg下载下来的libtorch的源文件目录&lt;br&gt;
+&lt;code&gt;vcpkg/buildtrees/libtorch/src&lt;/code&gt;这个目录下存储着libtorch每次的下载缓存，一般的我们选最新的那个目录并进入该目录&lt;/li&gt;
+&lt;li&gt;执行&lt;code&gt;git init .&lt;/code&gt;初始化本地仓库&lt;/li&gt;
+&lt;li&gt;执行&lt;code&gt;git add .&lt;/code&gt;把libtorch的所有原文件加入暂存区&lt;/li&gt;
+&lt;li&gt;执行&lt;code&gt;git commit -m &amp;quot;temp&amp;quot;&lt;/code&gt;把所有原文件提交&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;修改libtorch的编译报错问题
+这里我们已经知道了要显式的&lt;code&gt;#include &amp;lt;fmt/ranges.h&amp;gt;&lt;/code&gt;，直接找到对应的文件修改吧！&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;为修改完的文件生成patch&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;执行&lt;code&gt;git status&lt;/code&gt;可以看到我们修改的文件，确认修改无误&lt;/li&gt;
+&lt;li&gt;执行&lt;code&gt;git diff --ignore-space-at-eol | out-file -enc ascii ..\..\..\..\ports\libtorch\fix-build-error-with-fmt11.patch&lt;/code&gt;即可把patch文件生成到&lt;code&gt;vcpkg/ports/libtorch&lt;/code&gt;下，
+这个文件长这样&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/39738/files#diff-20152fea9680d25580927f0beb5e3353810aef44c5dfe4c505e5c2a46f60b699" target="_blank" rel="noopener"
+&gt;fix-build-error-with-fmt11.patch&lt;/a&gt;&lt;br&gt;
+注意，vcpkg的官方人员会要求你文件用&lt;code&gt;LF&lt;/code&gt;而不是&lt;code&gt;CRLF&lt;/code&gt;，记得确定&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在&lt;code&gt;portfile.cmake&lt;/code&gt;文件中添加该patch&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmake" data-lang="cmake"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;vcpkg_from_github&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c"&gt;# 其他参数...
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;&lt;/span&gt; &lt;span class="s"&gt;PATCHES&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;fix-build-error-with-fmt11.patch&lt;/span&gt; &lt;span class="c"&gt;# &amp;lt;-- 这里就是生成的patch文件了
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;验证行patch是否能解决问题
+再次执行&lt;code&gt;vcpkg install libtorch&lt;/code&gt;，如果没有报错那么就是成功了！&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;将&lt;code&gt;vcpkg.json&lt;/code&gt;文件中的&lt;code&gt;port-version&lt;/code&gt;号加1，如果没有&lt;code&gt;port-version&lt;/code&gt;则说明当前的&lt;code&gt;port-version&lt;/code&gt;号为0&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;将刚才的修改git commit&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在vcpkg的根目录下执行&lt;code&gt;vcpkg x-add-version --all&lt;/code&gt;，再次git commit&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;将git修改提交到vcpkg的pull request中&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="添加包"&gt;添加包
+&lt;/h2&gt;&lt;p&gt;如果你已经知道了如何更新包，那么你肯定熟悉了vcpkg的目录结构，这里我们再复述一下，vcpkg目录下的&lt;code&gt;ports/&amp;lt;your-port-name&amp;gt;&lt;/code&gt;主要包含两个文件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;portfile.cmake: 如何用cmake编译&lt;/li&gt;
+&lt;li&gt;vcpkg.json: 这个包的依赖关系等描述&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;接下来我们以添加&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/42969" target="_blank" rel="noopener"
+&gt;ucoro&lt;/a&gt;到vcpkg为例&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;在ports文件夹下新建ucoro文件夹&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在ucoro文件夹下添加portfile.cmake和vcpkg.json两个文件。(我一般是找个就近的包把它的这俩文件copy过来)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;修改vcpkg.json文件内容，主要是名称、版本号、描述、网址、许可证、依赖&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;修改portfile.cmake文件，一般的，我们把下面的每一个函数都调用一下总不会错&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;如果是header-only的库，那么就在第一行添加&lt;code&gt;set(VCPKG_BUILD_TYPE release)&lt;/code&gt;，这样不会有debug的文件目录生成，ucoro就是一个header-only的库，这里我加上了这一行。&lt;/li&gt;
+&lt;li&gt;使用&lt;a class="link" href="https://learn.microsoft.com/en-us/vcpkg/maintainers/functions/vcpkg_from_github" target="_blank" rel="noopener"
+&gt;vcpkg_from_github&lt;/a&gt;从github下载ucoro的release文件&lt;/li&gt;
+&lt;li&gt;使用&lt;a class="link" href="https://learn.microsoft.com/en-us/vcpkg/maintainers/functions/vcpkg_cmake_configure" target="_blank" rel="noopener"
+&gt;vcpkg_cmake_configure&lt;/a&gt;传入项目编译的cmake参数&lt;/li&gt;
+&lt;li&gt;使用&lt;a class="link" href="https://learn.microsoft.com/en-us/vcpkg/maintainers/functions/vcpkg_cmake_install" target="_blank" rel="noopener"
+&gt;vcpkg_cmake_install&lt;/a&gt;调用cmake install命令安装库&lt;/li&gt;
+&lt;li&gt;使用&lt;a class="link" href="https://learn.microsoft.com/en-us/vcpkg/maintainers/functions/vcpkg_cmake_config_fixup" target="_blank" rel="noopener"
+&gt;vcpkg_cmake_config_fixup&lt;/a&gt;确保生成的cmake安装文件符合vcpkg的要求&lt;/li&gt;
+&lt;li&gt;使用&lt;a class="link" href="https://learn.microsoft.com/en-us/vcpkg/maintainers/functions/vcpkg_fixup_pkgconfig" target="_blank" rel="noopener"
+&gt;vcpkg_fixup_pkgconfig&lt;/a&gt;修复 *.pc 文件中的通用路径&lt;/li&gt;
+&lt;li&gt;使用&lt;code&gt;file(INSTALL &amp;quot;${SOURCE_PATH}/LICENSE_1_0.txt&amp;quot; DESTINATION &amp;quot;${CURRENT_PACKAGES_DIR}/share/${PORT}&amp;quot; RENAME copyright)&lt;/code&gt;复制ucoro的license到目标目录&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;好了，现在就和上面的更新包操作一样，使用&lt;code&gt;vcpkg install ucoro&lt;/code&gt;直到vcpkg不再报错和警告即大功告成，最终的port.cmake文件如下，可以看到我还添加了一个cmake-install.patch文件，这是因为ucoro的cmake文件里没有写cmake install指令，当然cmake语法这里不做介绍。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmake" data-lang="cmake"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;VCPKG_BUILD_TYPE&lt;/span&gt; &lt;span class="s"&gt;release&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="c"&gt;# header-only
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt; &lt;span class="nb"&gt;vcpkg_from_github&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;OUT_SOURCE_PATH&lt;/span&gt; &lt;span class="s"&gt;SOURCE_PATH&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;REPO&lt;/span&gt; &lt;span class="s"&gt;avplayer/ucoro&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;REF&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;v${VERSION}&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;SHA512&lt;/span&gt; &lt;span class="s"&gt;c3436b436ef1ebb3d47a65db9603842293bdb6451bc6fb738a63d61a63b52901e223f46625d956303566dc52dfb38ffb2c6ce20016c18b444f9cb3e2e701e613&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;HEAD_REF&lt;/span&gt; &lt;span class="s"&gt;main&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;PATCHES&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;cmake-install.patch&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt; &lt;span class="nb"&gt;vcpkg_cmake_configure&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;SOURCE_PATH&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;${SOURCE_PATH}&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;OPTIONS&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;-DUCORO_BUILD_TESTING=OFF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt; &lt;span class="nb"&gt;vcpkg_cmake_install&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt; &lt;span class="nb"&gt;vcpkg_cmake_config_fixup&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt; &lt;span class="nb"&gt;vcpkg_fixup_pkgconfig&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt; &lt;span class="nb"&gt;file&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;INSTALL&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;${SOURCE_PATH}/LICENSE_1_0.txt&amp;#34;&lt;/span&gt; &lt;span class="s"&gt;DESTINATION&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;${CURRENT_PACKAGES_DIR}/share/${PORT}&amp;#34;&lt;/span&gt; &lt;span class="s"&gt;RENAME&lt;/span&gt; &lt;span class="s"&gt;copyright&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;和更新包的操作一样，git commit并提交pr吧！&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="常见问题"&gt;常见问题
+&lt;/h2&gt;&lt;h3 id="有的包生成的pc文件里有绝对路径导致vcpkg的ci报错"&gt;有的包生成的.pc文件里有绝对路径，导致vcpkg的ci报错
+&lt;/h3&gt;&lt;p&gt;使用&lt;a class="link" href="https://learn.microsoft.com/zh-cn/vcpkg/maintainers/functions/vcpkg_fixup_pkgconfig" target="_blank" rel="noopener"
+&gt;vcpkg_fixup_pkgconfig()&lt;/a&gt;进行修复，如&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/42158" target="_blank" rel="noopener"
+&gt;更新magic-enum&lt;/a&gt;时我发现之前的portfile.cmake里并未对pc文件进行修复&lt;/p&gt;
+&lt;h3 id="某个包的当前版本的bug需要修复如何添加patch"&gt;某个包的当前版本的bug需要修复，如何添加patch
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;这个bug已经被修复了，只是没有更新到这个版本&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;首先我们找到这个bug修复对应的commit，这里我们以&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/39738" target="_blank" rel="noopener"
+&gt;更新fmt到11&lt;/a&gt;为例，在这个pr里我发现fmt的更新导致folly编译报错，具体原因忽略，这个编译报错被修复对应的commit为&lt;a class="link" href="https://github.com/facebook/folly/commit/21e8dcd464ee46b2144a1e4d4c0e452355ae15f0" target="_blank" rel="noopener"
+&gt;https://github.com/facebook/folly/commit/21e8dcd464ee46b2144a1e4d4c0e452355ae15f0&lt;/a&gt;，我们进入到这个commit对应的链接，可以看到修改的git diff。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;但是！咱们现在要的是一个可以用的patch文件，这里就需要加入一点github官方文档未提供的方法了(也许提供了但是我没找到？)，在这个commit链接后面加上&lt;code&gt;.patch&lt;/code&gt;，即&lt;a class="link" href="https://github.com/facebook/folly/commit/21e8dcd464ee46b2144a1e4d4c0e452355ae15f0.patch" target="_blank" rel="noopener"
+&gt;https://github.com/facebook/folly/commit/21e8dcd464ee46b2144a1e4d4c0e452355ae15f0.patch&lt;/a&gt;，可以发现现在是纯文本了，接下来还要在最后加上&lt;code&gt;?full_index=1&lt;/code&gt;，按讨论区的说法，加上这个之后可以保证链接的稳定。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;You have to add ?full_index=1 to the URL to get a full commit hash in the patch, otherwise the number of characters used to write the commit in the patch will grow as the project grows.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;参考&lt;a class="link" href="https://github.com/orgs/community/discussions/46034#discussioncomment-4846112" target="_blank" rel="noopener"
+&gt;https://github.com/orgs/community/discussions/46034#discussioncomment-4846112&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;patch文件搞定了，接下来就是把这个链接放到vcpkg的portfile.cmake文件中，调用&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/39738/files#diff-43a3685f2f444b4804fbb55de14055069de61e824ca3fc9ae9b27fb5ffd16a32R8-R13" target="_blank" rel="noopener"
+&gt;vcpkg_download_distfile&lt;/a&gt;把文件下载下来，&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmake" data-lang="cmake"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;vcpkg_download_distfile&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;FMT11_RANGE_PATCH&lt;/span&gt; &lt;span class="c"&gt;# 这里给patch起个名称
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;&lt;/span&gt; &lt;span class="s"&gt;URLS&lt;/span&gt; &lt;span class="s"&gt;https://github.com/facebook/folly/commit/21e8dcd464ee46b2144a1e4d4c0e452355ae15f0.patch?full_index=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;FILENAME&lt;/span&gt; &lt;span class="s"&gt;fmt11-range.patch&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;SHA512&lt;/span&gt; &lt;span class="s"&gt;6a3afe361cd24b4f62b3aba625dfbbfb767c91f27fa45ed4604adc5ec3d574e571ece13eeda0d9d47b8a37166fc31b1ed7f58f120a35d35977085a08172de105&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;并在&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/39738/files#diff-43a3685f2f444b4804fbb55de14055069de61e824ca3fc9ae9b27fb5ffd16a32R27" target="_blank" rel="noopener"
+&gt;vcpkg_from_github&lt;/a&gt;中设置这个文件为对应的patch。至此完成了拉取上游修改并添加为patch的操作。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmake" data-lang="cmake"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;vcpkg_from_github&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;OUT_SOURCE_PATH&lt;/span&gt; &lt;span class="s"&gt;SOURCE_PATH&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;REPO&lt;/span&gt; &lt;span class="s"&gt;facebook/folly&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;REF&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;v${VERSION}&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;SHA512&lt;/span&gt; &lt;span class="s"&gt;f129d4e530b5c8aaf4cbfb0c813e84ee911ec26e43fa01e6e1c9557501c605a8123d46d0c689b32eb5e5a57280968662a5fa370ede17af7526db59545e9a70db&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;HEAD_REF&lt;/span&gt; &lt;span class="s"&gt;main&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;PATCHES&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;disable-non-underscore-posix-names.patch&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;fix-windows-minmax.patch&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;fix-deps.patch&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;disable-uninitialized-resize-on-new-stl.patch&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;fix-unistd-include.patch&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s"&gt;fix-fmt11-cmake.patch&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;FMT11_RANGE_PATCH&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="c"&gt;# 这里就是下载下来的patch
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="如何在vcpkg的ci检查中跳过某些检查"&gt;如何在vcpkg的ci检查中跳过某些检查
+&lt;/h3&gt;&lt;p&gt;在&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/40984" target="_blank" rel="noopener"
+&gt;更新fastdds&lt;/a&gt;时我遇到了fastdds在老版本的android上由于缺少依赖编译不过去的问题&lt;/p&gt;
+&lt;p&gt;官方的回复也是说针对这种情况要在ci里跳过检查&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;CI is instructed to skip many ports which required API level 24 for android&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;主要修改的地方为文件&lt;code&gt;scripts/ci.baseline.txt&lt;/code&gt;
+在这个文件里添加希望跳过的检查：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-plain" data-lang="plain"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;fastdds:arm-neon-android=fail
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;fastdds:arm64-android=fail
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;fastdds:x64-android=fail
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/46268" target="_blank" rel="noopener"
+&gt;更新highifive&lt;/a&gt;时我遇到了highfive的feature在ci上通过了确被忽略的报错，报错信息为：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-plain" data-lang="plain"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;D:\a\_work\1\s\scripts\azure-pipelines/../ci.feature.baseline.txt:954:1: error: highfive[core]:arm64-windows passed but was marked expected to be a cascaded failure
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;D:\a\_work\1\s\scripts\azure-pipelines/../ci.feature.baseline.txt:954:1: error: highfive[core,eigen3]:arm64-windows passed but was marked expected to be a cascaded failure
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;D:\a\_work\1\s\scripts\azure-pipelines/../ci.feature.baseline.txt:954:1: error: highfive[core,xtensor]:arm64-windows passed but was marked expected to be a cascaded failure
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;D:\a\_work\1\s\scripts\azure-pipelines/../ci.feature.baseline.txt:954:1: error: highfive[core,boost]:arm64-windows passed but was marked expected to be a cascaded failure
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这里的意思就是feature通过了但是被标记为了理应失败，对应修改的地方为文件&lt;code&gt;scripts/ci.feature.baseline.txt&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-plain" data-lang="plain"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;highfive:arm64-uwp = cascade
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;highfive:x64-uwp = cascade
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;highfive[opencv]:arm64-windows = cascade
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="如何在vcpkg中更新boost"&gt;如何在vcpkg中更新boost
+&lt;/h3&gt;&lt;p&gt;我最开始更新&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/42678" target="_blank" rel="noopener"
+&gt;boost 1.87.0&lt;/a&gt; 时是傻乎乎的一个个的更新的，后来才发现官方有脚本的&amp;hellip;&amp;hellip;&lt;/p&gt;
+&lt;p&gt;脚本路径为&lt;code&gt;vcpkg/scripts/boost/generate-ports.ps1&lt;/code&gt;, 注意要使用PowerShell 6 或更高版本，否则会报错。&lt;/p&gt;</description></item><item><title>sp插件使用情况</title><link>https://fvhtp.ppzt.loc.cc/p/sp%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5/</link><pubDate>Wed, 05 Nov 2025 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/sp%E6%8F%92%E4%BB%B6%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5/</guid><description>&lt;ol&gt;
+&lt;li&gt;
+&lt;h5 id="事前需要下载好这2个插件"&gt;事前需要下载好这2个插件
+&lt;/h5&gt;&lt;blockquote&gt;
+&lt;p&gt;点击sp软件的“工具”&amp;mdash;“插件管理”&amp;mdash;“在线”&amp;mdash;&amp;ndash;选择你要下载的插件。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意：点击在线这里的时候，需要等一会儿，最好是不要用tor，容易造成刷新不出来插件）&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;装完插件，记得关闭sp软件，再重新打开sp软件&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;sp-爬取节点&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;点击爬取节点&amp;mdash;-主界面。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;爬取的项目，记得不要都勾选，容易卡，而且特别卡，亲测！！！&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;sp-YTB下载&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;事前准备一个YouTube的链接，我这里事前找到一个，用如下网址进行演示&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;youtube网站：
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;https://www.youtube.com/watch?v=K-Y0AbaW7EU
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>vscode cmake 设置</title><link>https://fvhtp.ppzt.loc.cc/p/vscode-cmake-%E8%AE%BE%E7%BD%AE/</link><pubDate>Fri, 11 Jul 2025 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/vscode-cmake-%E8%AE%BE%E7%BD%AE/</guid><description>&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;配置CMAKE_TOOLCHAIN_FILE为vcpkg&lt;/p&gt;
+&lt;p&gt;打开vscode的设置界面，搜索&lt;code&gt;cmake.configureSettings&lt;/code&gt;，点击&lt;code&gt;Edit in settings.json&lt;/code&gt;并添加：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cmake.configureSettings&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;CMAKE_TOOLCHAIN_FILE&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;打开visual studio的CMakeSettings.json，设置为&lt;code&gt;${env.VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake&lt;/code&gt;(&lt;strong&gt;语法和vscode不一样!!!&lt;/strong&gt;)&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;configurations&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;x86-Debug&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;generator&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;Visual Studio 15 2017&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;configurationType&amp;#34;&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;Debug&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;buildRoot&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;${env.LOCALAPPDATA}\\CMakeBuild\\${workspaceHash}\\build\\${name}&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cmakeCommandArgs&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;buildCommandArgs&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;-m -v:minimal&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;variables&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;CMAKE_TOOLCHAIN_FILE&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;value&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;D:\\src\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;参考：https://github.com/MicrosoftDocs/vcpkg-docs/blob/main/vcpkg/examples/installing-and-using-packages.md#cmake&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;配置generator为Ninja
+打开vscode的设置界面，搜索&lt;code&gt;cmake.generator&lt;/code&gt;，填入&lt;code&gt;Ninja&lt;/code&gt;即可。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;</description></item><item><title>vscode python 设置</title><link>https://fvhtp.ppzt.loc.cc/p/vscode-python-%E8%AE%BE%E7%BD%AE/</link><pubDate>Fri, 30 May 2025 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/vscode-python-%E8%AE%BE%E7%BD%AE/</guid><description>&lt;p&gt;参考&lt;a class="link" href="https://code.visualstudio.com/docs/python/settings-reference" target="_blank" rel="noopener"
+&gt;Python settings reference&lt;/a&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;python pyi 文件的搜索目录
+pyi文件用于提示IDE自动补全和高亮，在vscode中对应&lt;code&gt;stubPath&lt;/code&gt;这个参数，它的默认值是&lt;code&gt;./typings&lt;/code&gt;，也就是根目录的typings文件夹，所以把所有的pyi文件放到该目录就可以使vscode里的python代码自动提示并高亮了&lt;/li&gt;
+&lt;/ol&gt;</description></item><item><title>vscode/visual studio 快捷建设置</title><link>https://fvhtp.ppzt.loc.cc/p/vscode/visual-studio-%E5%BF%AB%E6%8D%B7%E5%BB%BA%E8%AE%BE%E7%BD%AE/</link><pubDate>Tue, 25 Mar 2025 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/vscode/visual-studio-%E5%BF%AB%E6%8D%B7%E5%BB%BA%E8%AE%BE%E7%BD%AE/</guid><description>&lt;ol&gt;
+&lt;li&gt;切换头文件/源文件(&lt;strong&gt;F4&lt;/strong&gt;)
+&lt;ul&gt;
+&lt;li&gt;vscode: c++插件搜索&lt;code&gt;switchheadersource&lt;/code&gt;(注意不加空格，这样自带的c++和clangd都能搜索出来)&lt;/li&gt;
+&lt;li&gt;visual studio: 搜索&lt;code&gt;切换标题代码文件&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;</description></item><item><title>vscode clangd 设置</title><link>https://fvhtp.ppzt.loc.cc/p/vscode-clangd-%E8%AE%BE%E7%BD%AE/</link><pubDate>Fri, 14 Mar 2025 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/vscode-clangd-%E8%AE%BE%E7%BD%AE/</guid><description>&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;禁用microsoft c++插件的提示
+打开vscode的设置界面，搜索&lt;code&gt;c++ engine&lt;/code&gt;，选择&lt;code&gt;C_Cpp.intelliSenseEngine&lt;/code&gt;，设置为&lt;code&gt;disabled&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;对应的settings.json设置为&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;C_Cpp.intelliSenseEngine&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;disabled&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;添加clangd参数&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;不自动添加头文件&lt;/li&gt;
+&lt;li&gt;补全时不自动填写函数参数&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;打开vscode的设置界面，搜索&lt;code&gt;clangd arguments&lt;/code&gt;，选择&lt;code&gt;clangd.arguments&lt;/code&gt;，点击&lt;code&gt;Add Item&lt;/code&gt;添加对应参数。&lt;/p&gt;
+&lt;p&gt;对应的settings.json设置为&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;clangd.arguments&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;--header-insertion=never&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;--function-arg-placeholders=0&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;],&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;</description></item><item><title>cython，将py文件编译成pyd/so文件</title><link>https://fvhtp.ppzt.loc.cc/p/cython%E5%B0%86py%E6%96%87%E4%BB%B6%E7%BC%96%E8%AF%91%E6%88%90pyd/so%E6%96%87%E4%BB%B6/</link><pubDate>Sun, 10 Nov 2024 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/cython%E5%B0%86py%E6%96%87%E4%BB%B6%E7%BC%96%E8%AF%91%E6%88%90pyd/so%E6%96%87%E4%BB%B6/</guid><description>&lt;p&gt;在windows下使用cythonize可以将py文件编译成pyd，这样就完成了初步的python代码加密工作
+使用前需要先安装Cython &lt;code&gt;pip install Cython&lt;/code&gt;
+然后对py文件执行命令&lt;code&gt;cythonize -i -3 --directive always_allow_keywords=true xxx.py&lt;/code&gt;
+这里有一个要注意的点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&amp;ndash;directive always_allow_keywords=true. 这一个参数是强制生成keyword，因为有的人在写python文件时，会写成:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-python" data-lang="python"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;func&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;input&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;do&lt;/span&gt; &lt;span class="n"&gt;somthing&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="kc"&gt;True&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;res&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;func&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;input&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;input&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;# 注意这里，input=input，相当于需要一个keyword&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;但是cython默认不会为一个参数的函数生成keyword，因此当出现上面这种情况时，就会出现py可以运行pyd不可以运行的情况。见&lt;a class="link" href="https://cython.readthedocs.io/en/latest/src/userguide/source_files_and_compilation.html" target="_blank" rel="noopener"
+&gt;always_allow_keywords&lt;/a&gt;，文档里说关闭always_allow_keywords会slightly faster，但是都用python了这点性能总感觉大差不差的，毕竟只是针对只有一个入参的函数才有用。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;下面是一个脚本，用于把目录下的所有py文件转换为pyd&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-python" data-lang="python"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;os&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;sys&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;subprocess&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pathlib&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Path&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;compile_to_pyd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;src_path&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;auto_delete&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;bool&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;isfile&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;src_path&lt;/span&gt;&lt;span class="p"&gt;)):&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;input file&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;py_files&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;src_path&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;endswith&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;.py&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)):&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;py_files&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;src_path&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;input dir&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;# 获取目录中的所有.py文件&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;py_files_Path&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Path&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;src_path&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rglob&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;*.py&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;py_files&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;absolute&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;py_files_Path&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;py_files&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;no py files...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;return&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;building &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;py_files&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; py files...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;# 使用Cython编译为.pyd文件&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;files_str&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34; &amp;#34;&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;py_files&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;# --directive always_allow_keywords=true 是为了防止有人写 res = fun(a = a) 这种情况&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;# cython默认对于单参数不生成keyword，因此要强制开启&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;# https://cython.readthedocs.io/en/latest/src/userguide/source_files_and_compilation.html&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;compile_command&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;cythonize -i -3 --directive always_allow_keywords=true &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;files_str&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;compile_command&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;subprocess&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;compile_command&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;shell&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;check&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;auto_delete&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;# 删除生成的 .py 和 .c 文件&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;py_file&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;py_files&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;c_file&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;py_file&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;c&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exists&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;c_file&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;remove&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;c_file&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exists&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;py_file&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;remove&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;py_file&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;__main__&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;Usage: python compile_to_pyd.py &amp;lt;directory&amp;gt;&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;dir_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;auto_delete&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;--auto-delete&amp;#34;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;compile_to_pyd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;dir_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;auto_delete&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description></item><item><title>windows添加防火墙规则</title><link>https://fvhtp.ppzt.loc.cc/p/windows%E6%B7%BB%E5%8A%A0%E9%98%B2%E7%81%AB%E5%A2%99%E8%A7%84%E5%88%99/</link><pubDate>Wed, 06 Mar 2024 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/windows%E6%B7%BB%E5%8A%A0%E9%98%B2%E7%81%AB%E5%A2%99%E8%A7%84%E5%88%99/</guid><description>&lt;p&gt;bat脚本如下，涉及到的函数主要是 netsh advfirewall firewall add rule 和 netsh advfirewall firewall delete rule&lt;/p&gt;
+&lt;p&gt;需要注意的一个坑是program的路径不能存在斜杠&lt;code&gt;/&lt;/code&gt;，需要使用&lt;code&gt;\&lt;/code&gt;，然而很多软件都会自动把路径生成为类似于&lt;code&gt;C:/User/...&lt;/code&gt;这种形式，需要在脚本里转换一下&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bat" data-lang="bat"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;rem Check if both program path and program name are provided as arguments&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%~1&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&amp;#34;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;echo&lt;/span&gt; Usage: &lt;span class="nv"&gt;%0&lt;/span&gt; program_path program_name
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;echo&lt;/span&gt; Example: &lt;span class="nv"&gt;%0&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;C:\Path\to\your\program.exe&amp;#34;&lt;/span&gt; YourProgramName
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;exit&lt;/span&gt; /b 1
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%~2&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&amp;#34;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;echo&lt;/span&gt; Usage: &lt;span class="nv"&gt;%0&lt;/span&gt; program_path program_name
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;echo&lt;/span&gt; Example: &lt;span class="nv"&gt;%0&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;C:\Path\to\your\program.exe&amp;#34;&lt;/span&gt; YourProgramName
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;exit&lt;/span&gt; /b 1
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;programPath=&lt;/span&gt;&lt;span class="nv"&gt;%~1&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;programName=&lt;/span&gt;&lt;span class="nv"&gt;%~2&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;rem 替换斜杠为反斜杠&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;programPath=&lt;/span&gt;&lt;span class="nv"&gt;%programPath:/=\%&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;rem Delete firewall rule&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;netsh advfirewall firewall delete rule name=&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%programName%&lt;/span&gt;&lt;span class="s2"&gt;(TCP)&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;netsh advfirewall firewall delete rule name=&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%programName%&lt;/span&gt;&lt;span class="s2"&gt;(UDP)&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;rem Add firewall rule for TCP&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;netsh advfirewall firewall add rule name=&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%programName%&lt;/span&gt;&lt;span class="s2"&gt;(TCP)&amp;#34;&lt;/span&gt; dir=in program=&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%programPath%&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt; action=allow protocol=TCP
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;rem Add firewall rule for UDP&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;netsh advfirewall firewall add rule name=&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%programName%&lt;/span&gt;&lt;span class="s2"&gt;(UDP)&amp;#34;&lt;/span&gt; dir=in program=&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%programPath%&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt; action=allow protocol=UDP
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;echo&lt;/span&gt; Firewall rules for &lt;span class="nv"&gt;%programName%&lt;/span&gt; added successfully.
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description></item><item><title>Qt-ColorEditor，Qt颜色编辑器</title><link>https://fvhtp.ppzt.loc.cc/p/qt-coloreditorqt%E9%A2%9C%E8%89%B2%E7%BC%96%E8%BE%91%E5%99%A8/</link><pubDate>Tue, 30 Jan 2024 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/qt-coloreditorqt%E9%A2%9C%E8%89%B2%E7%BC%96%E8%BE%91%E5%99%A8/</guid><description>&lt;h2 id="外观"&gt;外观
+&lt;/h2&gt;&lt;p&gt;分享一下我实现的颜色编辑器，主要原因是Qt的QColorDialog功能较少没法满足需求，目前已经在&lt;a class="link" href="https://github.com/zenustech/zeno" target="_blank" rel="noopener"
+&gt;zeno&lt;/a&gt;中使用了，由于zeno有自己的样式表，所以在zeno里长这样：&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://cdn.jsdelivr.net/gh/miyanyan/miyan-image@main/img/zeno-style.png"
+loading="lazy"
+alt="zeno中的样式"
+&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;类名&lt;/th&gt;
+&lt;th&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;ColorWheel&lt;/td&gt;
+&lt;td&gt;颜色选择器，用于选择颜色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GradientSlider&lt;/td&gt;
+&lt;td&gt;渐变滑块，带有渐变颜色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ColorSpinHSlider&lt;/td&gt;
+&lt;td&gt;带标签和旋钮的水平颜色滑块&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ColorButton&lt;/td&gt;
+&lt;td&gt;颜色按钮，显示颜色并支持拖拽和释放颜色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ColorPalette&lt;/td&gt;
+&lt;td&gt;颜色调板，显示颜色列表并支持拖拽和释放&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ColorPreview&lt;/td&gt;
+&lt;td&gt;颜色预览，显示当前和之前选择的颜色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ColorComboWidget&lt;/td&gt;
+&lt;td&gt;颜色组合切换器，用于切换颜色组合&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ColorLineEdit&lt;/td&gt;
+&lt;td&gt;颜色名称文本框，显示颜色名称&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ColorPicker&lt;/td&gt;
+&lt;td&gt;颜色拾取器，用于抓取屏幕颜色&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id="功能预览未配置样式表"&gt;功能预览（未配置样式表）
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;srgb切换
+&lt;img src="https://cdn.jsdelivr.net/gh/miyanyan/miyan-image@main/img/srgb.gif"
+loading="lazy"
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;颜色轮选色
+&lt;img src="https://cdn.jsdelivr.net/gh/miyanyan/miyan-image@main/img/colorwheel.gif"
+loading="lazy"
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;颜色文字选色
+&lt;img src="https://cdn.jsdelivr.net/gh/miyanyan/miyan-image@main/img/colortext.gif"
+loading="lazy"
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;屏幕取色，主要实现是截取当前的屏幕然后根据鼠标的位置设置颜色，支持多个屏幕（我自己只测试了2个屏幕）
+&lt;img src="https://cdn.jsdelivr.net/gh/miyanyan/miyan-image@main/img/colorpicker.gif"
+loading="lazy"
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;颜色滑动条选色，RGB和HSV
+&lt;img src="https://cdn.jsdelivr.net/gh/miyanyan/miyan-image@main/img/colorslider.gif"
+loading="lazy"
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;颜色面板取色
+&lt;img src="https://cdn.jsdelivr.net/gh/miyanyan/miyan-image@main/img/colorpalette-select.gif"
+loading="lazy"
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;颜色面板，可以把想要的颜色记录在这，持久化存储，即便关闭下一次打开也会自动加载
+&lt;img src="https://cdn.jsdelivr.net/gh/miyanyan/miyan-image@main/img/colorpalette-saveremove.gif"
+loading="lazy"
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;上一个/当前颜色切换，这个主要是类似于PS之类的软件，可以缓存一个颜色用来备选或者撤销
+&lt;img src="https://cdn.jsdelivr.net/gh/miyanyan/miyan-image@main/img/color-precur.gif"
+loading="lazy"
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;互补色取色，主要参考&lt;a class="link" href="https://www.canva.com/colors/color-wheel/" target="_blank" rel="noopener"
+&gt;color-wheel&lt;/a&gt;
+&lt;img src="https://cdn.jsdelivr.net/gh/miyanyan/miyan-image@main/img/colorcombination.gif"
+loading="lazy"
+&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="如何使用"&gt;如何使用
+&lt;/h2&gt;&lt;p&gt;github地址&lt;a class="link" href="https://github.com/miyanyan/Qt-ColorEditor" target="_blank" rel="noopener"
+&gt;Qt-ColorEditor&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;复制 &lt;code&gt;ColorWidgets&lt;/code&gt; 文件夹(只包含两个文件: &lt;code&gt;ColorEditor.h&lt;/code&gt; 和 &lt;code&gt;ColorEditor.cpp&lt;/code&gt;) 到你的项目，记得添加到构建系统如cmake中.&lt;/p&gt;
+&lt;p&gt;接口参照QColorDialog的方式：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-c++" data-lang="c++"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;#34;ColorWidgets/ColorEditor.h&amp;#34;&lt;/span&gt;&lt;span class="cp"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="cp"&gt;&lt;/span&gt;&lt;span class="c1"&gt;// ...
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// call here, you can find this in MainWindow.cpp
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;&lt;/span&gt;&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;btn&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ColorButton&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;btn&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;setColor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Qt&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;blue&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;setCentralWidget&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;btn&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;connect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;btn&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;ColorButton&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;clicked&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;btn&lt;/span&gt;&lt;span class="p"&gt;](){&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;color&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ColorEditor&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;getColor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;btn&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;btn&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;setColor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;最后还得说一句，QColorDialog的功能确实有点少了，我在实现的时候参考了很多3D软件，如Houdini、Blender、Unity等，其中Houdini的功能最多，因此最终的形态也和Houdini类似了。&lt;/p&gt;</description></item><item><title>windows自动以管理员身份运行bat文件</title><link>https://fvhtp.ppzt.loc.cc/p/windows%E8%87%AA%E5%8A%A8%E4%BB%A5%E7%AE%A1%E7%90%86%E5%91%98%E8%BA%AB%E4%BB%BD%E8%BF%90%E8%A1%8Cbat%E6%96%87%E4%BB%B6/</link><pubDate>Mon, 25 Dec 2023 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/windows%E8%87%AA%E5%8A%A8%E4%BB%A5%E7%AE%A1%E7%90%86%E5%91%98%E8%BA%AB%E4%BB%BD%E8%BF%90%E8%A1%8Cbat%E6%96%87%E4%BB%B6/</guid><description>&lt;p&gt;作者：Scruel
+链接：&lt;a class="link" href="https://www.zhihu.com/question/34541107/answer/243592603" target="_blank" rel="noopener"
+&gt;https://www.zhihu.com/question/34541107/answer/243592603&lt;/a&gt;
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。&lt;/p&gt;
+&lt;p&gt;正好看到, 那就一行代码解决问题吧&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bat" data-lang="bat"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;net file &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;NUL &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;NUL &lt;span class="p"&gt;||&lt;/span&gt; &lt;span class="k"&gt;start&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;&amp;#34;&lt;/span&gt; mshta vbscript:CreateObject(&lt;span class="s2"&gt;&amp;#34;Shell.Application&amp;#34;&lt;/span&gt;).ShellExecute(&lt;span class="s2"&gt;&amp;#34;cmd.exe&amp;#34;&lt;/span&gt;,&lt;span class="s2"&gt;&amp;#34;/c pushd &amp;#34;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%~dp0&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&amp;#34; &amp;amp;&amp;amp; &amp;#34;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%~s0&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&amp;#34; &lt;/span&gt;&lt;span class="nv"&gt;%*&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;,&lt;span class="s2"&gt;&amp;#34;&amp;#34;&lt;/span&gt;,&lt;span class="s2"&gt;&amp;#34;runas&amp;#34;&lt;/span&gt;,0)(window.close) &lt;span class="p"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="k"&gt;exit&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如果VBScript 被砍掉，则可用 powershell 来执行，原理是一样的：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bat" data-lang="bat"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;net file &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;NUL &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;NUL &lt;span class="p"&gt;||&lt;/span&gt; powershell Start-Process -FilePath cmd.exe -ArgumentList &lt;span class="s2"&gt;&amp;#34;&amp;#34;&amp;#34;/c pushd &lt;/span&gt;&lt;span class="nv"&gt;%~dp0&lt;/span&gt;&lt;span class="s2"&gt; &amp;amp;&amp;amp; &lt;/span&gt;&lt;span class="nv"&gt;%~s0&lt;/span&gt;&lt;span class="s2"&gt; &lt;/span&gt;&lt;span class="nv"&gt;%*&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt; -Verb RunAs &lt;span class="p"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="k"&gt;exit&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;可支持：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;带空格的脚本路径&lt;/li&gt;
+&lt;li&gt;自动切换至脚本所在的路径&lt;/li&gt;
+&lt;li&gt;脚本参数传递&lt;/li&gt;
+&lt;li&gt;可隐藏窗口执行脚本（下文）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;需要隐藏窗口执行的话，对于 mshta 版本，只需要改变 0 为 1 即可：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bat" data-lang="bat"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;net file &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;NUL &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;NUL &lt;span class="p"&gt;||&lt;/span&gt; &lt;span class="k"&gt;start&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;&amp;#34;&lt;/span&gt; mshta vbscript:CreateObject(&lt;span class="s2"&gt;&amp;#34;Shell.Application&amp;#34;&lt;/span&gt;).ShellExecute(&lt;span class="s2"&gt;&amp;#34;cmd.exe&amp;#34;&lt;/span&gt;,&lt;span class="s2"&gt;&amp;#34;/c pushd &amp;#34;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%~dp0&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&amp;#34; &amp;amp;&amp;amp; &amp;#34;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;%~s0&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&amp;#34; &lt;/span&gt;&lt;span class="nv"&gt;%*&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;,&lt;span class="s2"&gt;&amp;#34;&amp;#34;&lt;/span&gt;,&lt;span class="s2"&gt;&amp;#34;runas&amp;#34;&lt;/span&gt;,1)(window.close) &lt;span class="p"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="k"&gt;exit&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;以及 powershell 版本，简单增加 -WindowStyle Hidden 即可：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bat" data-lang="bat"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;net file &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;NUL &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;NUL &lt;span class="p"&gt;||&lt;/span&gt; powershell Start-Process -FilePath cmd.exe -ArgumentList &lt;span class="s2"&gt;&amp;#34;&amp;#34;&amp;#34;/c pushd &lt;/span&gt;&lt;span class="nv"&gt;%~dp0&lt;/span&gt;&lt;span class="s2"&gt; &amp;amp;&amp;amp; &lt;/span&gt;&lt;span class="nv"&gt;%~s0&lt;/span&gt;&lt;span class="s2"&gt; &lt;/span&gt;&lt;span class="nv"&gt;%*&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt; -Verb RunAs -WindowStyle Hidden &lt;span class="p"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="k"&gt;exit&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;解释一下：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;当前值&lt;/th&gt;
+&lt;th&gt;当前值含义&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;%~s0&lt;/td&gt;
+&lt;td&gt;脚本的绝对路径&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;%~dp0&lt;/td&gt;
+&lt;td&gt;脚本所在目录的绝对路径&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;runas&lt;/td&gt;
+&lt;td&gt;以管理员权限执行&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;使用 cmd.exe 来执行，是为了能让脚本在执行时，自动切换到其所在的路径，因为直接通过 ShellExecute执行，并不能做到自动切换目录。&lt;/p&gt;</description></item><item><title>python requirements.txt 里指定操作系统和python版本</title><link>https://fvhtp.ppzt.loc.cc/p/python-requirements.txt-%E9%87%8C%E6%8C%87%E5%AE%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%92%8Cpython%E7%89%88%E6%9C%AC/</link><pubDate>Wed, 16 Nov 2022 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/python-requirements.txt-%E9%87%8C%E6%8C%87%E5%AE%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%92%8Cpython%E7%89%88%E6%9C%AC/</guid><description>&lt;p&gt;在给&lt;a class="link" href="https://github.com/TBC-TJU/MetaBCI/blob/master/requirements.txt" target="_blank" rel="noopener"
+&gt;MetaBCI&lt;/a&gt;编写github ci时发现在不同的平台下依赖不尽相同，版本要求不尽相同，在这里记录下&lt;/p&gt;
+&lt;p&gt;参考&lt;a class="link" href="https://pip.pypa.io/en/stable/reference/requirement-specifiers/" target="_blank" rel="noopener"
+&gt;https://pip.pypa.io/en/stable/reference/requirement-specifiers/&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-txt" data-lang="txt"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;# ---------------------------------
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;# System platform value
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;# ---------------------------------
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;# AIX &amp;#34;aix&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;# Linux &amp;#34;linux&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;# Windows &amp;#34;win32&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;# Windows/Cygwin &amp;#34;cygwin&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;# MacOS &amp;#34;darwin&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;# ---------------------------------
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;atomac==1.1.0; sys_platform == &amp;#39;darwin&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;futures&amp;gt;=3.0.5; python_version &amp;lt; &amp;#39;3.0&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;futures&amp;gt;=3.0.5; python_version == &amp;#39;2.6&amp;#39; or python_version==&amp;#39;2.7&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description></item><item><title>python 初始化一个固定大小的list</title><link>https://fvhtp.ppzt.loc.cc/p/python-%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%80%E4%B8%AA%E5%9B%BA%E5%AE%9A%E5%A4%A7%E5%B0%8F%E7%9A%84list/</link><pubDate>Wed, 26 Oct 2022 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/python-%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%80%E4%B8%AA%E5%9B%BA%E5%AE%9A%E5%A4%A7%E5%B0%8F%E7%9A%84list/</guid><description>&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;AList = [A()] * n&lt;/code&gt;, 此时AList里的所有元素具有相同id, 即是同一个对象，修改AList[0]相当于修改AList的所有元素&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;AList = [A() for i in range(n)]&lt;/code&gt;, 此时AList里的所有元素都是不同的id, 即是不同的对象, 这样修改任意元素不会影响其他元素&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>pybind11使用(2) 编写C++类并导出为pyd</title><link>https://fvhtp.ppzt.loc.cc/p/pybind11%E4%BD%BF%E7%94%A82-%E7%BC%96%E5%86%99c-%E7%B1%BB%E5%B9%B6%E5%AF%BC%E5%87%BA%E4%B8%BApyd/</link><pubDate>Fri, 02 Sep 2022 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/pybind11%E4%BD%BF%E7%94%A82-%E7%BC%96%E5%86%99c-%E7%B1%BB%E5%B9%B6%E5%AF%BC%E5%87%BA%E4%B8%BApyd/</guid><description>&lt;h2 id="导出的坑"&gt;导出的坑
+&lt;/h2&gt;&lt;h3 id="dynamic-module-does-not-define-module-export-function"&gt;dynamic module does not define module export function
+&lt;/h3&gt;&lt;p&gt;这是由于导出的包名不一致导致的，需要保证
+cmake的project名称&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmake" data-lang="cmake"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;project&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;haha&amp;#34;&lt;/span&gt; &lt;span class="s"&gt;LANGUAGES&lt;/span&gt; &lt;span class="s"&gt;CXX&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="c"&gt;# &amp;lt;-- haha
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt;&lt;span class="nb"&gt;find_package&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;Python&lt;/span&gt; &lt;span class="s"&gt;3.8&lt;/span&gt; &lt;span class="s"&gt;EXACT&lt;/span&gt; &lt;span class="s"&gt;COMPONENTS&lt;/span&gt; &lt;span class="s"&gt;Interpreter&lt;/span&gt; &lt;span class="s"&gt;Development&lt;/span&gt; &lt;span class="s"&gt;REQUIRED&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt;&lt;span class="nb"&gt;find_package&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;pybind11&lt;/span&gt; &lt;span class="s"&gt;REQUIRED&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt;&lt;span class="nb"&gt;pybind11_add_module&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROJECT_NAME&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="s"&gt;src/main.cpp&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;与
+main.cpp里的PYBIND11_MODULE&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-c++" data-lang="c++"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;PYBIND11_MODULE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;haha&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;// &amp;lt;-- haha
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;doc&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;haha c++ wrapper&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;名称一致&lt;/p&gt;
+&lt;h3 id="回调函数"&gt;回调函数
+&lt;/h3&gt;&lt;p&gt;我们可以在cpp里定义一个回调函数，然后python定义一个函数传到c++里，从而从c++取到数据&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-c++" data-lang="c++"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// c++
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;&lt;/span&gt;&lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;PyCallback&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;function&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pybind11&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;bytearray&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Haha&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;public&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;setCallback&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PyCallback&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;pyfn&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;m_pyfn&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pyfn&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;onDataAvaiable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;buf&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;len&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;m_pyfn&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pybind11&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;bytearray&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;buf&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;len&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;private&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;PyCallback&lt;/span&gt; &lt;span class="n"&gt;m_pyfn&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;PYBIND11_MODULE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;haha&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;pybind11&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;class_&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Haha&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;Haha&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;def&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;setCallback&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;Haha&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;setCallback&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// python
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;&lt;/span&gt;&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;fn&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;hahaInstance&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Haha&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;hahaInstance&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;setCallback&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fn&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="nl"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;// 阻塞保证hahaInstance一直运行，不断调用callback
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id="报错some-automatic-conversions-are-optional-and-require-extra-headers-to-be-included-when-compiling-your-pybind11-module"&gt;报错：Some automatic conversions are optional and require extra headers to be included when compiling your pybind11 module
+&lt;/h4&gt;&lt;p&gt;这是由于使用了c++的function但是导出的时候未&lt;code&gt;#include &amp;lt;pybind11/functional.h&amp;gt;&lt;/code&gt;&lt;/p&gt;
+&lt;h4 id="报错-dll-load-failed-while-importing-xxx"&gt;报错: DLL load failed while importing xxx
+&lt;/h4&gt;&lt;p&gt;这是由于c++库引用了某个dll，但是没和pyd放到同一路径下，python import 的时候自然找不到对应的dll了&lt;/p&gt;
+&lt;h4 id="执行python传入的回调函数时直接crash"&gt;执行python传入的回调函数时直接crash
+&lt;/h4&gt;&lt;p&gt;cpp里不能把PyCallback写成引用&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-c++" data-lang="c++"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Haha&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;private&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;PyCallback&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;m_pyfn&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// &amp;lt;-- 不能写引用
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description></item><item><title>pybind11使用(1) cmake + vcpkg 环境配置以及一些坑</title><link>https://fvhtp.ppzt.loc.cc/p/pybind11%E4%BD%BF%E7%94%A81-cmake--vcpkg-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E4%BB%A5%E5%8F%8A%E4%B8%80%E4%BA%9B%E5%9D%91/</link><pubDate>Thu, 01 Sep 2022 00:00:00 +0000</pubDate><guid>https://fvhtp.ppzt.loc.cc/p/pybind11%E4%BD%BF%E7%94%A81-cmake--vcpkg-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E4%BB%A5%E5%8F%8A%E4%B8%80%E4%BA%9B%E5%9D%91/</guid><description>&lt;h2 id="看似简单的配置流程"&gt;看似简单的配置流程
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;安装 : &lt;code&gt;vcpkg install pybind11&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;编写 cmake&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmake" data-lang="cmake"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;find_package&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;pybind11&lt;/span&gt; &lt;span class="s"&gt;REQUIRED&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt;&lt;span class="nb"&gt;pybind11_add_module&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROJECT_NAME&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="s"&gt;src/main.cpp&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="问题随之而来"&gt;问题随之而来
+&lt;/h2&gt;&lt;h3 id="build-link--fatal-error-lnk1104-cannot-open-file-optimizedlib"&gt;[build] LINK : fatal error LNK1104: cannot open file &amp;lsquo;optimized.lib&amp;rsquo;
+&lt;/h3&gt;&lt;p&gt;这个问题在老版vcpkg是存在的，在&lt;a class="link" href="https://github.com/microsoft/vcpkg/pull/26239" target="_blank" rel="noopener"
+&gt;某一版本&lt;/a&gt;修复
+而我的vcpkg好久没pull了，不幸的命中了这个问题，看来用vcpkg得及时更新&amp;hellip;&lt;/p&gt;
+&lt;h3 id="无效的函数python_add_library"&gt;无效的函数python_add_library
+&lt;/h3&gt;&lt;p&gt;由于pybind11在python3.8导出的模块只能给对应的python3.8版本用，导致想用多个python版本跑行不通，因此得多个版本编译，cmake脚本应修改为:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmake" data-lang="cmake"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;find_package&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;Python&lt;/span&gt; &lt;span class="s"&gt;3.8&lt;/span&gt; &lt;span class="s"&gt;EXACT&lt;/span&gt; &lt;span class="s"&gt;COMPONENTS&lt;/span&gt; &lt;span class="s"&gt;Interpreter&lt;/span&gt; &lt;span class="s"&gt;Development&lt;/span&gt; &lt;span class="s"&gt;REQUIRED&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt;&lt;span class="nb"&gt;find_package&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;pybind11&lt;/span&gt; &lt;span class="s"&gt;REQUIRED&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;&lt;/span&gt;&lt;span class="nb"&gt;pybind11_add_module&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PROJECT_NAME&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="s"&gt;src/main.cpp&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="err"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;这里有个坑，如果写&lt;code&gt;find_package (Python 3.8 EXACT REQUIRED)&lt;/code&gt;而不是&lt;code&gt;find_package (Python 3.8 EXACT COMPONENTS Interpreter Development REQUIRED)&lt;/code&gt;就会提示找不到&lt;code&gt;python_add_library&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id="python的版本管理"&gt;python的版本管理
+&lt;/h3&gt;&lt;p&gt;主要有两种方法：&lt;/p&gt;
+&lt;h4 id="手动安装python版本"&gt;手动安装python版本
+&lt;/h4&gt;&lt;p&gt;下载python并安装，注意要把路径添加到环境变量&lt;/p&gt;
+&lt;h4 id="vcpkg的version特性"&gt;vcpkg的version特性
+&lt;/h4&gt;&lt;p&gt;使用version特性需要开启&lt;a class="link" href="https://vcpkg.io/en/docs/users/versioning.html" target="_blank" rel="noopener"
+&gt;vcpkg的mainfest模式&lt;/a&gt;
+在CmakeLists.txt的同级目录编写vcpkg.json文件：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;test&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;builtin-baseline&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;c0b6d35a67d2ad358a6ced92b7aad16a7bf17737&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;dependencies&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;python3&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;version&amp;gt;=&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;3.8.3&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;pybind11&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;],&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;overrides&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;python3&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;version&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;3.8.3&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id="终于可以愉快使用pybind11啦"&gt;终于可以愉快使用pybind11啦
+&lt;/h2&gt;</description></item></channel></rss>
